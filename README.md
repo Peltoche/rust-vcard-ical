@@ -191,5 +191,43 @@ END:VEVENT             Line 4: END:VEVENT
 END:VCALENDAR          Line 5: END:VCALENDAR
 ```
 
+### Generator
 
+The other way to use `ical` is to generate ical/ics files. Builder
+for Events, Calendar and VCards ensure filling of mandatory fields.
 
+A fair knowledge of the iCal-standards is necessary to create usable
+ics-files, even so the `IcalEventBuilder` helps to stick to the
+formalities.
+
+Cargo.toml:
+```toml
+[dependencies.ical]
+version = "0.8.*"
+default-features = false
+features = ["ical", "vcard", "generator"]
+```
+
+Code:
+```rust
+extern crate ical;
+
+use crate::ical::{generator::*, *};
+
+fn main() {
+  let mut cal = IcalCalendarBuilder::version("2.0")
+          .gregorian()
+          .prodid("-//ical-rs//github.com//")
+          .build();
+
+  let event = IcalEventBuilder::tzid("Europe/Berlin")
+          .uid("UID for identifying this event.")
+          .changed("20210115")
+          .one_day("20220101")
+          .set(ical_property!("SUMMARY", "New Year"))
+          .build();
+  cal.events.push(event);
+
+  print!("{}", cal.generate());
+}
+```
